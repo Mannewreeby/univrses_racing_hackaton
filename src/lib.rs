@@ -28,7 +28,10 @@ use config::*;
 use dash::*;
 use font::*;
 use input::*;
+use server::{create_new_renet_server, update_visulizer_system, ServerLobby};
 use spawn::*;
+
+pub mod server;
 
 fn rapier_config_start_system(mut c: ResMut<RapierContext>) {
     c.integration_parameters.num_solver_iterations = NonZeroUsize::new(6).unwrap();
@@ -62,8 +65,6 @@ pub fn car_app(app: &mut App) -> &mut App {
             FrameTimeDiagnosticsPlugin::default(),
             RapierPhysicsPlugin::<MyPhysicsHooks>::default(),
             TrackPlugin,
-            RenetServerPlugin,
-            NetcodeServerPlugin,
             RapierDebugRenderPlugin {
                 enabled: false,
                 style: DebugRenderStyle {
@@ -101,6 +102,18 @@ pub fn car_app(app: &mut App) -> &mut App {
                 dash_speed_update_system,
             ),
         );
+
+    ////////// Server related ////////////////////
+
+    app.add_plugins((RenetServerPlugin, NetcodeServerPlugin));
+    app.insert_resource(ServerLobby::default());
+    let (server, transport) = create_new_renet_server();
+    app.insert_resource(server).insert_resource(transport);
+    app.add_plugins(bevy_egui::EguiPlugin);
+    app.insert_resource(renet_visualizer::RenetServerVisualizer::<200>::default());
+    app.add_systems(Update, (update_visulizer_system));
+
+    ///////////////////////////////////////////////
 
     #[cfg(feature = "dsp")]
     {
