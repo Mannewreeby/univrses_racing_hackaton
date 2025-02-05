@@ -105,4 +105,5 @@ renet_visualizer = { git = "https://github.com/lucaspoffo/renet", rev = "7331a9e
 ] }
 serde = {workspace = true}
 bevy_egui = { version = "0.28.0" }
+bincode = "1.3.3"
 # virtual_joystick = { version = "2.2.0", optional = true }

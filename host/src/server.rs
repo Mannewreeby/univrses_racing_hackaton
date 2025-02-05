@@ -5,11 +5,13 @@ use bevy::{
     log::tracing_subscriber::fmt::time::SystemTime,
     math::Vec3,
     prelude::{
-        Commands, Component, Entity, EventReader, KeyCode, Local, Query, Res, ResMut, Resource, Transform
+        Commands, Component, Entity, EventReader, KeyCode, Local, Query, Res, ResMut, Resource,
+        Transform,
     },
     utils::HashMap,
 };
 use bevy_egui::EguiContext;
+use bevy_garage_car::spawn_car;
 use bevy_renet::{
     renet::{
         transport::{
@@ -33,6 +35,7 @@ pub fn connection_config() -> ConnectionConfig {
 
 pub const PRIVATE_KEY: &[u8; NETCODE_KEY_BYTES] = b"an example very very secret key."; // 32-bytes
 pub const PROTOCOL_ID: u64 = 7;
+
 #[derive(Debug, Component)]
 pub struct Player {
     pub id: u64,
@@ -150,7 +153,7 @@ pub fn create_new_renet_server() -> (RenetServer, NetcodeServerTransport) {
 
     let addr = match std::env::var("APP_SERVER") {
         Ok(addr) => addr,
-        _ => "127.0.0.1:5000".to_string(),
+        _ => "0.0.0.0:5000".to_string(),
     };
 
     println!("Starting server on {}", addr);
@@ -183,6 +186,62 @@ pub fn server_update_system(
     car_res: Res<bevy_garage_car::CarRes>,
     mut visualizer: ResMut<renet_visualizer::RenetServerVisualizer<200>>,
 ) {
+    for event in server_events.read() {
+        match event {
+            ServerEvent::ClientConnected { client_id } => {
+                println!("Client {} connected.", client_id);
+
+                visualizer.add_client(*client_id);
+
+                // Send startup message to client
+                server.send_message(
+                    *client_id,
+                    ServerChannel::ServerMessages,
+                    b"Welcome!".as_slice(),
+                );
+
+                // Send information and position of all other players
+                for (entity, player, transform) in players.iter() {
+                    let translation: [f32; 3] = transform.translation.into();
+                    let message = bincode::serialize(&ServerMessages::PlayerCreate {
+                        id: player.id,
+                        entity,
+                        translation,
+                    })
+                    .unwrap();
+                    server.send_message(*client_id, ServerChannel::ServerMessages, message);
+                }
+
+                // Create new player
+                let transform = Transform::from_xyz(0., 0., 0.);
+                let player_entity = spawn_car(
+                    &mut cmd,
+                    &car_res.car_scene.as_ref().unwrap(),
+                    &car_res.wheel_scene.as_ref().unwrap(),
+                    false,
+                    transform,
+                );
+
+                cmd.entity(player_entity).insert(Player {
+                    id: client_id.raw(),
+                });
+                lobby.players.insert(client_id.raw(), player_entity);
+            }
+            ServerEvent::ClientDisconnected { client_id, reason } => {
+                println!("Client {} disconnected for reason: {} ", client_id, reason);
+                visualizer.remove_client(*client_id);
+                if let Some(player_entity) = lobby.players.remove(&client_id.raw()) {
+                    cmd.entity(player_entity).despawn();
+                }
+
+                let message = bincode::serialize(&ServerMessages::PlayerRemove {
+                    id: client_id.raw(),
+                })
+                .unwrap();
+                server.broadcast_message(ServerChannel::ServerMessages, message);
+            }
+        }
+    }
 }
 
 pub fn update_visulizer_system(
