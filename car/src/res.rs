@@ -12,7 +12,7 @@ impl Default for CarRes {
         Self {
             car_scene: None,
             wheel_scene: None,
-            show_rays: false,
+            show_rays: true,
         }
     }
 }

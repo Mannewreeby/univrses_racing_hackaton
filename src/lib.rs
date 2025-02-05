@@ -16,6 +16,14 @@ use bevy_garage_car::{aero_system, car_start_system, esp_system, CarRes, CarSet}
 use bevy_garage_light::{animate_light_direction, light_start_system};
 use bevy_garage_track::{track_polyline_start_system, SpawnCarOnTrackEvent, TrackPlugin};
 use bevy_rapier3d::prelude::*;
+use bevy_renet::{
+    renet::{
+        transport::{NetcodeServerTransport, ServerAuthentication, ServerConfig},
+        RenetServer, ServerEvent,
+    },
+    transport::NetcodeServerPlugin,
+    RenetServerPlugin,
+};
 use config::*;
 use dash::*;
 use font::*;
@@ -54,6 +62,8 @@ pub fn car_app(app: &mut App) -> &mut App {
             FrameTimeDiagnosticsPlugin::default(),
             RapierPhysicsPlugin::<MyPhysicsHooks>::default(),
             TrackPlugin,
+            RenetServerPlugin,
+            NetcodeServerPlugin,
             RapierDebugRenderPlugin {
                 enabled: false,
                 style: DebugRenderStyle {

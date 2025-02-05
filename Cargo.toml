@@ -98,4 +98,5 @@ bevy_garage_car = { workspace = true, default-features = true }
 bevy_garage_track = { workspace = true }
 bevy_rapier3d = { workspace = true, features = ["debug-render-3d"] }
 uuid = { workspace = true }
+bevy_renet = {git="https://github.com/lucaspoffo/renet", rev = "7331a9ec76ce0ee4dab17efdb69a0c1c65b7b4f3" }
 # virtual_joystick = { version = "2.2.0", optional = true }
