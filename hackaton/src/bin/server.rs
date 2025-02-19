@@ -1,25 +1,21 @@
 use std::{
-    f32::consts::PI,
     net::UdpSocket,
     num::NonZeroUsize,
     time::{SystemTime, UNIX_EPOCH},
 };
 
 use bevy::{
-    app::{App, Startup, Update}, asset::{AssetServer, Assets, Handle}, color::Color, diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, math::{Quat, Vec3}, pbr::{DirectionalLight, DirectionalLightBundle, PbrBundle, StandardMaterial}, prelude::{
-        Camera3d, Camera3dBundle, Commands, Cuboid, Entity, EventReader, EventWriter, IntoSystemConfigs, Mesh, ParamSet, Query, Res, ResMut, Transform, TransformBundle, With
-    }, scene::Scene, utils::default, DefaultPlugins
+    app::{App, Startup, Update}, asset::{AssetServer, Handle}, diagnostic::LogDiagnosticsPlugin, math::Vec3, prelude::{
+        Camera3dBundle, Commands, Entity, EventReader, EventWriter, IntoSystemConfigs, ParamSet, Query, Res, ResMut, Transform, With
+    }, scene::Scene, DefaultPlugins
 };
 use bevy_garage_camera::CarCameraPlugin;
-use bevy_garage_car::{Car, CarRes, CarWheels, STATIC_GROUP, Wheel, esp_system, spawn_car};
+use bevy_garage_car::{Car, CarRes, CarWheels, Wheel, esp_system, spawn_car};
 use bevy_garage_track::{
     SpawnCarOnTrackEvent, TrackConfig, TrackPlugin, spawn_car_on_track, track_start_system,
 };
 use bevy_rapier3d::{
-    na::Translation,
-    parry::transformation::utils::transform,
     plugin::{NoUserData, RapierConfiguration, RapierContext, RapierPhysicsPlugin, TimestepMode},
-    prelude::{Collider, ColliderScale, CollisionGroups, Friction, Group, Restitution, RigidBody},
     render::RapierDebugRenderPlugin,
 };
 use bevy_renet::{
@@ -34,7 +30,6 @@ use hackaton::{
     ClientChannel, NetworkedEntities, Player, PlayerInput, SERVER_PROTOCOL_ID, ServerChannel,
     ServerLobby, ServerMessages, connection_config, shared_systems::setup_level,
 };
-use renet_visualizer::RenetServerVisualizer;
 
 pub fn start_server() -> (RenetServer, NetcodeServerTransport) {
     let server = RenetServer::new(connection_config());
@@ -62,7 +57,7 @@ pub fn start_server() -> (RenetServer, NetcodeServerTransport) {
     let transport = NetcodeServerTransport::new(server_configuration, socket)
         .expect("Could not setup transport server");
 
-    return (server, transport);
+    (server, transport)
 }
 
 pub fn main() {
@@ -192,8 +187,8 @@ fn server_update_system(
                 let transform = Transform::from_translation(translation).with_rotation(quat);
                 let player_entity = spawn_car(
                     &mut cmd,
-                    &car_res.car_scene.as_ref().unwrap(),
-                    &car_res.wheel_scene.as_ref().unwrap(),
+                    car_res.car_scene.as_ref().unwrap(),
+                    car_res.wheel_scene.as_ref().unwrap(),
                     false,
                     transform,
                 );
@@ -274,7 +269,7 @@ fn server_network_sync(
             tr_set.p1().get(wheels[2]).unwrap().translation.into(),
             tr_set.p1().get(wheels[3]).unwrap().translation.into(),
         ]);
-        networked_entities.wheen_orientations.push([
+        networked_entities.wheel_orientations.push([
             tr_set.p1().get(wheels[0]).unwrap().rotation.into(),
             tr_set.p1().get(wheels[1]).unwrap().rotation.into(),
             tr_set.p1().get(wheels[2]).unwrap().rotation.into(),
@@ -313,8 +308,8 @@ pub fn spawn_car_system(
 
         spawn_car_on_track(
             &mut cmd,
-            &car_res.car_scene.as_ref().unwrap(),
-            &car_res.wheel_scene.as_ref().unwrap(),
+            car_res.car_scene.as_ref().unwrap(),
+            car_res.wheel_scene.as_ref().unwrap(),
             spawn_event.player,
             transform,
             spawn_event.index,

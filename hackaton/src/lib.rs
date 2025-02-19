@@ -1,9 +1,8 @@
 use std::time::Duration;
 
 use bevy::{
-    asset::Assets, math::Vec3, pbr::StandardMaterial, prelude::{Commands, Component, Entity, Event, Mesh, ResMut, Resource, Transform}, utils::HashMap
+    prelude::{Component, Entity, Event, Resource}, utils::HashMap
 };
-use bevy_rapier3d::prelude::{Collider, ColliderScale, CollisionGroups, RigidBody};
 use bevy_renet::renet::{ChannelConfig, ConnectionConfig, DisconnectReason, SendType};
 use serde::{Deserialize, Serialize};
 
@@ -98,7 +97,7 @@ pub struct NetworkedEntities {
     pub positions: Vec<[f32; 3]>,
     pub orientations: Vec<[f32; 4]>,
     pub wheel_positions: Vec<[[f32; 3]; 4]>,
-    pub wheen_orientations: Vec<[[f32; 4]; 4]>,
+    pub wheel_orientations: Vec<[[f32; 4]; 4]>,
 }
 
 #[derive(Debug, Default, Resource)]

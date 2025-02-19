@@ -17,7 +17,7 @@ use bevy::{
 };
 use bevy_egui::{EguiContexts, EguiPlugin};
 use bevy_garage_camera::CarCameraPlugin;
-use bevy_garage_car::{CarWheels, Wheel};
+use bevy_garage_car::{spawn_car, CarWheels, Wheel};
 use bevy_garage_track::{TrackPlugin, track_start_system};
 use bevy_renet::{
     RenetClientPlugin, client_connected,
@@ -25,7 +25,7 @@ use bevy_renet::{
         RenetClient,
         transport::{ClientAuthentication, NetcodeClientTransport},
     },
-    transport::{self, NetcodeClientPlugin},
+    transport::NetcodeClientPlugin,
 };
 use hackaton::{
     ClientChannel, NetworkedEntities, PlayerInput, SERVER_PROTOCOL_ID, ServerChannel,
@@ -71,7 +71,7 @@ fn start_renet_client() -> (RenetClient, NetcodeClientTransport) {
     let transport = NetcodeClientTransport::new(current_time, authentication, socket)
         .expect("Could not create client netcode transport");
 
-    return (client, transport);
+    (client, transport)
 }
 
 pub fn main() {
@@ -173,10 +173,10 @@ fn client_sync_players(
 
                 let transform: Transform =
                     Transform::from_xyz(position[0], position[1], position[2]);
-                let client_entity = bevy_garage_car::spawn_car(
+                let client_entity = spawn_car(
                     &mut cmd,
-                    &car_res.car_scene.as_ref().unwrap(),
-                    &car_res.wheel_scene.as_ref().unwrap(),
+                    car_res.car_scene.as_ref().unwrap(),
+                    car_res.wheel_scene.as_ref().unwrap(),
                     is_player,
                     transform,
                 );
@@ -221,7 +221,7 @@ fn client_sync_players(
                 cmd.entity(*entity).insert(transform);
 
                 let translations = networked_entities.wheel_positions[i];
-                let rotations = networked_entities.wheen_orientations[i];
+                let rotations = networked_entities.wheel_orientations[i];
 
                 let car_wheels = car_wheels.get(*entity);
                 if let Ok(car_wheels) = car_wheels {
