@@ -70,6 +70,7 @@ pub fn spawn_car(
     transform: Transform,
 ) -> Entity {
     let spec = CarSpec::default();
+
     let wheel_spec = WheelSpec::new(spec.wheel_radius, spec.wheel_width);
     let mounts = spec.wheel_mount.clone();
     let car_id = spawn_car_body(

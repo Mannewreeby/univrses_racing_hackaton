@@ -240,6 +240,9 @@ pub fn server_update_system(
                 .unwrap();
                 server.broadcast_message(ServerChannel::ServerMessages, message);
             }
+            _ => {
+                println!("Unknown connection")
+            }
         }
     }
 }

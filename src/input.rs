@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, render::camera::camera_system};
 use bevy_garage_camera::CameraConfig;
 use bevy_garage_car::{Car, CarRes, CarWheels, Player};
 use bevy_garage_track::SpawnCarOnTrackEvent;
@@ -106,6 +106,9 @@ pub fn input_system(
         // if input.pressed(KeyCode::Space) {
         //     car.gas = 0.;
         //     car.brake = 1.;
+        if (input.just_released(KeyCode::KeyN)) {
+            camera_config.next_view();
+        }
         // }
     }
 }

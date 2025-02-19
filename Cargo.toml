@@ -21,7 +21,7 @@ members = [
     # "trainer",
     # "db_client",
     # "ios",
-    "track-convert",
+    "track-convert", "hackaton",
     # "overture_maps",
     # "renet",
 ]
@@ -34,7 +34,7 @@ codegen-units = 1
 # virtual_joystick = ["dep:virtual_joystick"]
 default = []
 [workspace.dependencies]
-bevy = { version = "0.14", default-features = false }
+bevy = { version = "0.14" }
 bevy_garage_camera = { path = "./camera" }
 bevy_garage_car = { path = "./car", default-features = false }
 # bevy_garage_dsp = { path = "./dsp" }

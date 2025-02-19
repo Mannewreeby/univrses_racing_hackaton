@@ -28,7 +28,7 @@ use config::*;
 use dash::*;
 use font::*;
 use input::*;
-use server::{create_new_renet_server, update_visulizer_system, ServerLobby};
+use server::{create_new_renet_server, server_update_system, update_visulizer_system, ServerLobby};
 use spawn::*;
 
 pub mod server;
@@ -111,7 +111,7 @@ pub fn car_app(app: &mut App) -> &mut App {
     app.insert_resource(server).insert_resource(transport);
     app.add_plugins(bevy_egui::EguiPlugin);
     app.insert_resource(renet_visualizer::RenetServerVisualizer::<200>::default());
-    app.add_systems(Update, (update_visulizer_system));
+    app.add_systems(Update, (update_visulizer_system, server_update_system));
 
     ///////////////////////////////////////////////
 
